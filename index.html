@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jamaica — Sistema de Vendas</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- SheetJS para exportar Excel real (.xlsx) -->
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+  <!-- ===================== FUNDO DECORATIVO (CSS/SVG) ===================== -->
+  <div class="bg-layer" aria-hidden="true">
+    <!-- Raios de luz e gradientes ficam via CSS. SVG decorativo embutido abaixo -->
+    <svg class="bg-lion" viewBox="0 0 512 512" xmlns="https://freepixel-prod.s3.amazonaws.com/preview/free-illustration-graphics-world-lion-day---a-vibrant-and-colorful-illustration-of-a-lions-face-showcasing-its-majestic-feature-preview-1004257978.jpg" aria-hidden="true">
+      <defs>
+        <radialGradient id="maneGrad" cx="50%" cy="45%" r="60%">
+          <stop offset="0%" stop-color="#FFD000"/>
+          <stop offset="55%" stop-color="#0B8D3A"/>
+          <stop offset="100%" stop-color="#D31E1E"/>
+        </radialGradient>
+      </defs>
+      <!-- Dreadlocks / juba -->
+      <g fill="url(#maneGrad)">
+        <circle cx="256" cy="230" r="150"/>
+        <g stroke="url(#maneGrad)" stroke-width="26" stroke-linecap="round">
+          <line x1="256" y1="60" x2="256" y2="10"/>
+          <line x1="180" y1="80" x2="150" y2="30"/>
+          <line x1="332" y1="80" x2="362" y2="30"/>
+          <line x1="120" y1="150" x2="70" y2="120"/>
+          <line x1="392" y1="150" x2="442" y2="120"/>
+          <line x1="100" y1="240" x2="40" y2="240"/>
+          <line x1="412" y1="240" x2="472" y2="240"/>
+          <line x1="130" y1="330" x2="90" y2="380"/>
+          <line x1="382" y1="330" x2="422" y2="380"/>
+          <line x1="210" y1="370" x2="190" y2="430"/>
+          <line x1="302" y1="370" x2="322" y2="430"/>
+          <line x1="256" y1="380" x2="256" y2="450"/>
+        </g>
+      </g>
+      <!-- Rosto -->
+      <g>
+        <ellipse cx="256" cy="235" rx="105" ry="115" fill="#111111"/>
+        <circle cx="212" cy="215" r="16" fill="#FFD000"/>
+        <circle cx="300" cy="215" r="16" fill="#FFD000"/>
+        <path d="M256 250 l-26 34 h52 z" fill="#0B8D3A"/>
+        <path d="M256 284 q-40 40 -80 20 M256 284 q40 40 80 20" stroke="#FFD000" stroke-width="8" fill="none" stroke-linecap="round"/>
+      </g>
+    </svg>
+  </div>
+
+  <!-- ===================== CABEÇALHO ===================== -->
+  <header class="app-header glass fade-in">
+    <div class="brand">
+      <h1>Jamaica</h1>
+      <p class="subtitle">Sistema de Vendas</p>
+    </div>
+    <div class="header-right">
+      <div class="clock-box">
+        <span id="clock" class="clock">00:00:00</span>
+        <span id="date" class="date">—</span>
+      </div>
+      <button id="themeToggle" class="btn theme-btn" type="button">🌙 Escuro</button>
+    </div>
+  </header>
+
+  <!-- ===================== LAYOUT PRINCIPAL ===================== -->
+  <main class="layout">
+    <!-- ---------- CALCULADORA ---------- -->
+    <section class="panel glass fade-in" id="calcPanel">
+      <div class="panel-title">
+        <h2>🧮 Calculadora</h2>
+        <button id="modeToggle" class="btn mode-btn partner" type="button">🟢 COM PARCERIA</button>
+      </div>
+
+      <div class="table-wrap">
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th>Nome do Item</th>
+              <th>Qtd.</th>
+              <th>Valor Unitário</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody id="itemsBody"><!-- linhas geradas via JS --></tbody>
+        </table>
+      </div>
+
+      <div class="summary">
+        <div class="sum-line"><span>Subtotal</span><strong id="subtotal">$0</strong></div>
+        <div class="sum-line"><span>Total</span><strong id="total">$0</strong></div>
+        <div class="sum-line"><span>Lucro estimado</span><strong id="profit">$0</strong></div>
+        <div class="sum-line"><span>Quantidade Total</span><strong id="qtyTotal">0</strong></div>
+      </div>
+
+      <div class="calc-actions">
+        <button id="saveCalc" class="btn neon-yellow" type="button">💾 Salvar Cálculo</button>
+        <button id="clearCalc" class="btn neon-red" type="button">🧹 Limpar Calculadora</button>
+      </div>
+    </section>
+
+    <!-- ---------- HISTÓRICO + ESTATÍSTICAS ---------- -->
+    <aside class="side-col">
+      <!-- Estatísticas -->
+      <section class="panel glass fade-in stats-panel">
+        <h2>📊 Estatísticas</h2>
+        <div class="stats-grid">
+          <div class="stat-card"><span class="stat-ico">💰</span><span class="stat-val" id="statSold">$0</span><span class="stat-lbl">Total Vendido</span></div>
+          <div class="stat-card"><span class="stat-ico">📦</span><span class="stat-val" id="statItems">0</span><span class="stat-lbl">Total de Itens</span></div>
+          <div class="stat-card"><span class="stat-ico">📈</span><span class="stat-val" id="statSales">0</span><span class="stat-lbl">Nº de Vendas</span></div>
+          <div class="stat-card"><span class="stat-ico">🤝</span><span class="stat-val" id="statPartner">0</span><span class="stat-lbl">C/ Parceria</span></div>
+          <div class="stat-card"><span class="stat-ico">🚫</span><span class="stat-val" id="statNormal">0</span><span class="stat-lbl">S/ Parceria</span></div>
+        </div>
+      </section>
+
+      <!-- Histórico -->
+      <section class="panel glass fade-in history-panel">
+        <div class="panel-title">
+          <h2>📜 Histórico</h2>
+        </div>
+        <div class="export-row">
+          <button id="exportJson" class="btn small neon-green" type="button">📥 JSON</button>
+          <button id="exportPdf" class="btn small neon-yellow" type="button">📄 PDF</button>
+          <button id="exportExcel" class="btn small neon-red" type="button">📊 Excel</button>
+        </div>
+        <div id="historyList" class="history-list"><!-- entradas via JS --></div>
+      </section>
+    </aside>
+  </main>
+
+  <!-- ===================== MODAL DE DETALHES ===================== -->
+  <div id="modal" class="modal-overlay" hidden>
+    <div class="modal glass">
+      <div class="modal-head">
+        <h3 id="modalTitle">Detalhes da Venda</h3>
+        <button id="modalClose" class="btn small neon-red" type="button">✖</button>
+      </div>
+      <div id="modalBody" class="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Área de impressão para exportar PDF (preenchida via JS) -->
+  <div id="printArea" class="print-area"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
